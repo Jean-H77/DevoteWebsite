@@ -1,0 +1,188 @@
+﻿@model IEnumerable<DevoteWebsite.ViewModels.StoreItemViewModel>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 col-md-8">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 gap-2">
+                @foreach (var storeItem in Model)
+                {
+                    <div class="col">
+                        <div class="card store-card text-center shadow" style="height: 100%; width: 100%">
+                            <div class="d-flex justify-content-center mt-3">
+                                <img class="card-img-top store-img" src="https://imgur.com/cI7otvO.png"
+                                     alt="Image of @storeItem.Name" style="width: 80px; height: 80px;">
+                            </div>
+                            @if (@storeItem.SalePercentage > 0)
+                            {
+                                <div class="position-absolute top-0 end-0 bg-danger text-white px-3 py-1 rounded-bottom-start fw-bold">
+                                    -@storeItem.SalePercentage%
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-text card-title">@storeItem.Name</h5>
+                                <p class="card-text">@storeItem.Description</p>
+                            </div>
+                            <div class="card-footer">
+                                @if (@storeItem.SalePercentage > 0)
+                                {
+                                    <del class="text-muted">$@storeItem.Price</del>
+                                    <strong class="text-danger">$@storeItem.DiscountedPrice</strong>
+                                }
+                                else
+                                {
+                                    <strong class="text-danger">$@storeItem.Price</strong>
+                                }
+                            </div>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#addToCartModal" class="openAddToCartModal stretched-link"
+                               data-name="@storeItem.Name"
+                               data-price=@storeItem.Price
+                               data-uid=@storeItem.Uid
+                            @(storeItem.SalePercentage > 0 ? $"data-discountPrice={storeItem.DiscountedPrice}" : "")>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4" id="cart">
+            <div class="card text-center shadow">
+                <h5 class="card-header text-center">Shopping Cart</h5>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Item</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="CartTable">
+                        </tbody>
+                    </table>
+                    <div class="input-group mb-3">
+                        <input type="text" id="username" class="form-control" placeholder="Username" aria-label="Username">
+                    </div>
+                    <select class="form-select" aria-label="Default select example" id="PaymentOption">
+                        <option selected>Select payment option</option>
+                        <option value="1">Stripe</option>
+                        <option value="2">Cryptocurrency</option>
+                    </select>
+                    <br />
+                    <button id="CheckOutId" class="btn btn-primary text-center">Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addToCartModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+
+                <h5 class="modal-title" id="addToCartModalTitle">Add to Cart</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="itemQuantity" class="form-label font-weight-bold">Quantity</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control text-center" id="itemQuantity" value="1" min="1" max="100">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Total Price:</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span id="totalPrice" class="font-weight-bold"></span>
+                    </div>
+                </div>
+                <button type="button" id="AddToCart" class="btn btn-success">Add to cart</button>
+                <button type="button" id="CloseAddToCart" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+        function getAntiForgeryToken() {
+            var token = '@Html.AntiForgeryToken()';
+            token = $(token).val();
+             return token;
+       }
+
+        $(document).ready(function() {
+            $(".openAddToCartModal.stretched-link").on("click", function () {
+            var name = $(this).data('name');
+            var price = $(this).data('discountprice') !== undefined ? $(this).data('discountprice') : $(this).data('price');
+            var uid = $(this).data('uid');
+
+            $("#itemQuantity").val(1);
+            amount = 1;
+            updateTotalPrice(price, $("#itemQuantity").val());
+
+            $("#itemQuantity").on("change", function () {
+                var quantity = $(this).val();
+                if(quantity > 100) {
+                    $("#itemQuantity").val(100);
+                    quantity = 100;
+                } else if(quantity < 1) {
+                    $("#itemQuantity").val(1);
+                    quantity = 1;
+                }
+                updateTotalPrice(price, quantity);
+            });
+
+            function updateTotalPrice(price, quantity) {
+                var totalPrice = price * quantity;
+                $("#totalPrice").text("$" + totalPrice.toFixed(2));
+            }
+
+            $("#AddToCart").off("click").one("click", function(e) {
+               e.preventDefault();
+               var quantity = parseInt($("#itemQuantity").val(), 10);
+
+            if (isNaN(quantity) || quantity <= 0) {
+                return;
+             }
+
+            $("#AddToCart").prop("disabled", true);
+
+            $.ajax({
+                type: 'POST',
+                url: '/Store/AddToCart',
+                data: JSON.stringify({ "uid": uid, "quantity": quantity }),
+                contentType: 'application/json',
+                dataType: "html",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("RequestVerificationToken", getAntiForgeryToken());
+                },
+                success: function(result) {
+                    $('#CartTable').html(result);
+                },
+                error: function(xhr, status, error) {
+                    try {
+                        var err = JSON.parse(xhr.responseText);
+                        alert(err.Message);
+                    } catch (e) {
+                        alert("An unexpected error occurred.");
+                    }
+                },
+                complete: function() {
+                    $("#AddToCart").prop("disabled", false);
+                    $('#addToCartModal').modal('toggle');
+                }
+        });
+    });
+    });
+    });
+</script>
+}

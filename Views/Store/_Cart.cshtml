@@ -1,0 +1,42 @@
+﻿@model List<DevoteWebsite.ViewModels.StoreCartItemViewModel>
+
+@foreach (var item in Model)
+{
+    <tr class="text-center align-middle">
+        <td>@item.Name</td>
+        <td>@item.Quantity</td>
+        <td>@item.Price</td>
+        <td>
+            <button type="button" class="btn-close remove-item" data-uid="@item.Uid"></button>
+        </td>
+    </tr>
+}
+
+    <script>
+        function getAntiForgeryToken() {
+            var token = '@Html.AntiForgeryToken()';
+            token = $(token).val();
+             return token;
+       }
+
+        $(document).ready(function () {
+               $(".btn-close.remove-item").off("click").one("click", function (e) {
+                 e.preventDefault();
+                var uid = $(this).data("uid");
+                $.ajax({
+                    url: '@Url.Action("RemoveFromCart", "Store")', 
+                    type: 'POST',
+                    data: { uid: uid },
+                     beforeSend: function (xhr) {
+                        xhr.setRequestHeader("RequestVerificationToken", getAntiForgeryToken());
+                    },
+                    success: function (response) {
+                         $("#CartTable").html(response);
+                    },
+                    error: function () {
+                        alert('Error occurred while trying to remove the item.');
+                    }
+                });
+            });
+        });
+    </script>
