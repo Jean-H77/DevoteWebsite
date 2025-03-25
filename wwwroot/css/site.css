@@ -20,11 +20,54 @@ html {
 body {
     margin-bottom: 60px;
     background-color: #f4f4f9;
-    color: #333; 
+   /* background-image: url("background.jpg");*/
+    color: #333;
 }
 
 .store-card:hover {
     transform: scale(1.05);
     box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
     transition: all 0.3s ease-in-out;
+}
+
+@font-face {
+    font-family: 'Blacklisted';
+    src: url('fonts/Blacklisted.ttf');
+    font-style: normal;
+}
+
+.logo {
+    font-family: 'Blacklisted';
+}
+
+#particles-js {
+    height: 30vh; 
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1; 
+}
+
+.container-fluid {
+    position: relative;
+    z-index: 1;
+}
+
+.row {
+    position: relative;
+    z-index: 2;
+}
+
+.nav-link {
+    font-size: 1.2rem; 
+    font-weight: 500; 
+    letter-spacing: 0.5px; 
+    /*transition: background-color 0.3s ease, font-size 0.3s ease; */
+}
+
+.nav-link:hover {
+   background-color: rgba(0, 123, 255, 0.1); /* Soft blue-gray background */
+   color: #007bff; /* Optional: Change text color to blue */
+ /*  font-size: 1.3rem;*/ /* Slightly larger on hover */
 }

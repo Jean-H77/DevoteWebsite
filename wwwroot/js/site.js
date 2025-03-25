@@ -1,9 +1,4 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
-
-function createCookie(name, value, days) {
+﻿function createCookie(name, value, days) {
     if (days) {
         var date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -39,3 +34,9 @@ function eraseAllCookies() {
         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
     }
 }
+
+$(function () {
+    particlesJS.load('particles-js', 'lib/particles-js/particles.json', function () {
+        console.log('callback - particles.js config loaded');
+    });
+});

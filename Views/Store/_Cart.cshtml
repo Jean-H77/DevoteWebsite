@@ -7,7 +7,7 @@
         <td>@item.Quantity</td>
         <td>@item.Price</td>
         <td>
-            <button type="button" class="btn-close remove-item" data-uid="@item.Uid"></button>
+            <button type="button" class="btn-close remove-item" data-uid="@item.Uid" data-name="@item.Name"></button>
         </td>
     </tr>
 }
@@ -23,6 +23,7 @@
                $(".btn-close.remove-item").off("click").one("click", function (e) {
                  e.preventDefault();
                 var uid = $(this).data("uid");
+             var name = $(this).data("name");
                 $.ajax({
                     url: '@Url.Action("RemoveFromCart", "Store")', 
                     type: 'POST',
@@ -32,6 +33,17 @@
                     },
                     success: function (response) {
                          $("#CartTable").html(response);
+                      Toastify({
+             text: `${name} has been removed from the cart.`,
+              duration: 3000,
+             newWindow: true,
+             close: false,
+             gravity: "top",
+              position: "right",
+             stopOnFocus: false,
+                 style: {
+                      background: "linear-gradient(to right, #2196f3, #90caf9)",
+                       }}).showToast();
                     },
                     error: function () {
                         alert('Error occurred while trying to remove the item.');

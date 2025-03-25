@@ -2,6 +2,7 @@
 using DevoteWebsite.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace DevoteWebsite.Controllers
@@ -26,7 +27,8 @@ namespace DevoteWebsite.Controllers
                 .Include(item => item.StoreItemSaleInfo)
                 .ToListAsync();
 
-           
+            HttpContext.Session.SetString("cart_total", "33.3");
+
             var storeItemsViewModel = storeItems.Select(item => new StoreItemViewModel
             {
                 Name = item.Name,
@@ -71,12 +73,18 @@ namespace DevoteWebsite.Controllers
                 return NotFound("Session Not Found");
             }
 
-            List<StoreCartItemViewModel> cartItems = JsonConvert.DeserializeObject<List<StoreCartItemViewModel>>(cartString) ?? new List<StoreCartItemViewModel>();
-            cartItems.Add(model);
+            var cartItems = JsonConvert.DeserializeObject<Dictionary<string, StoreCartItemViewModel>>(cartString) ?? new Dictionary<string, StoreCartItemViewModel>();
+            if(cartItems.ContainsKey(model.Uid))
+            {
+                cartItems[model.Uid].Quantity += model.Quantity;
+            } else
+            {
+                cartItems.Add(model.Uid, model);
+            }
 
             HttpContext.Session.SetString("cart", JsonConvert.SerializeObject(cartItems));
-
-            return PartialView("_cart", cartItems);
+         
+            return PartialView("_cart", cartItems.Values.ToList());
         }
 
         [HttpPost]
@@ -91,12 +99,14 @@ namespace DevoteWebsite.Controllers
                 return NotFound("Session Not Found");
             }
 
-            var cartItems = JsonConvert.DeserializeObject<List<StoreCartItemViewModel>>(cartString) ?? new List<StoreCartItemViewModel>();
-            var toRemove = cartItems.Where(item => item.Uid == uid).First();
-            cartItems.Remove(toRemove);
-            HttpContext.Session.SetString("cart", JsonConvert.SerializeObject(cartItems));
-
-            return PartialView("_cart", cartItems);
+            var cartItems = JsonConvert.DeserializeObject<Dictionary<string, StoreCartItemViewModel>>(cartString) ?? new Dictionary<string, StoreCartItemViewModel>();
+            if (cartItems.ContainsKey(uid))
+            {
+                bool isSuccessful = cartItems.Remove(uid);
+                HttpContext.Session.SetString("cart", JsonConvert.SerializeObject(cartItems));
+            }
+    
+            return PartialView("_cart", cartItems.Values.ToList());
         }
 
         public bool HasCartSessionOrCreate()
@@ -105,10 +115,16 @@ namespace DevoteWebsite.Controllers
             if(!hasCartSession)
             {
                 HttpContext.Session.SetString("cart", "");
+                HttpContext.Session.SetString("cart_total", "");
                 return false;
             }
 
             return true;
+        }
+
+        private void setCartTotalSessionValue()
+        {
+
         }
     }
 }
