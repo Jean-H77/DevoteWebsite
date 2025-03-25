@@ -19,8 +19,7 @@ html {
 
 body {
     margin-bottom: 60px;
-    background-color: #f4f4f9;
-   /* background-image: url("background.jpg");*/
+    background-color: #F4F3F2;
     color: #333;
 }
 
@@ -31,13 +30,24 @@ body {
 }
 
 @font-face {
-    font-family: 'Blacklisted';
-    src: url('fonts/Blacklisted.ttf');
+    font-family: 'Pokemon Hollow';
+    src: url('fonts/Pokemon Hollow.ttf');
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'Pokemon Solid';
+    src: url('fonts/Pokemon Solid.ttf');
+    font-style: normal;
+}
+
+
 .logo {
-    font-family: 'Blacklisted';
+    font-family: 'Pokemon Hollow';
+}
+
+.logo-dark {
+    font-family: 'Pokemon Solid'
 }
 
 #particles-js {
@@ -67,7 +77,13 @@ body {
 }
 
 .nav-link:hover {
-   background-color: rgba(0, 123, 255, 0.1); /* Soft blue-gray background */
-   color: #007bff; /* Optional: Change text color to blue */
- /*  font-size: 1.3rem;*/ /* Slightly larger on hover */
+   background-color: rgba(0, 123, 255, 0.1);
+   color: #007bff; 
+}
+
+@media (max-width: 576px) {
+    .btn-group-custom {
+        flex-direction: row !important;
+        gap: 10px; /* Adjust spacing on small screens */
+    }
 }

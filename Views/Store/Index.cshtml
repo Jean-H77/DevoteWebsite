@@ -124,6 +124,9 @@
        }
 
         $(document).ready(function() {
+            $("#CloseAddToCart").on("click", function () {
+                         $('#addToCartModal').modal('toggle');
+            });
             $(".openAddToCartModal.stretched-link").on("click", function () {
             var name = $(this).data('name');
             var price = $(this).data('discountprice') !== undefined ? $(this).data('discountprice') : $(this).data('price');

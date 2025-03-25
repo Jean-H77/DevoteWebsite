@@ -1,0 +1,66 @@
+﻿<script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+
+<div class="container-fluid">
+    <div class="row py-5">
+        <div class="col-12 text-center">
+            <h1 class="fw-bold display-1 logo" id="download-title">Downloads</h1>
+            <p class="text-muted">Choose the best version for your system</p>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5 mb-4">
+            <div class="card h-100 shadow-lg" id="recommended-card">
+                <div class="card-header bg-primary text-white fw-bold">
+                    Recommended
+                </div>
+                <div class="card-body d-flex flex-column align-items-center text-center">
+                    <img src="~/css/Windows_Installer_icon.png" class="card-img-top my-3" style="max-width: 80px;" alt="Windows Installer Icon">
+                    <h5 class="card-title">Windows Installer (64-bit)</h5>
+                    <p class="card-text text-muted">No Java required (bundled runtime)</p>
+                    <p class="small">Compatible with Windows 10 & 11</p>
+                    <a class="btn btn-primary mt-auto w-100" asp-area="" asp-controller="Play" asp-action="Index">Download</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-5 mb-4">
+            <div class="card h-100 shadow-lg">
+                <div class="card-body d-flex flex-column align-items-center text-center">
+                    <img src="~/css/java_icon.png" class="card-img-top my-3" style="max-width: 80px;" alt="Java Launcher">
+                    <h5 class="card-title">Java Launcher</h5>
+                    <p class="card-text text-muted">Requires Java 8+ to run</p>
+                    <p class="small">Cross-platform (Windows, macOS, Linux)</p>
+                    <a class="btn btn-primary mt-auto w-100" asp-area="" asp-controller="Play" asp-action="Index">Download</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row py-5">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold">Need Java 8?</h2>
+            <p class="text-muted">If you are using the Java Launcher, make sure you have Java 8 or later installed. You can download Java 8 below:</p>
+            <a href="https://www.azul.com/downloads/?version=java-8-lts&package=jdk#zulu" target="_blank" class="btn btn-success btn-lg">Download Java 8</a>
+        </div>
+    </div>
+</div>
+
+<script>
+        anime({
+        targets: '#download-title',
+        color: ['#FF6347', '#00BFFF'],
+        duration: 1500,
+        easing: 'easeInOutSine',
+        loop: true,
+        direction: 'alternate'
+    });
+
+    anime({
+        targets: '#recommended-card',
+        backgroundColor: ['#ffffff', '#f7e1b5'],
+        duration: 1500,
+        easing: 'easeInOutSine',
+        loop: true,
+        direction: 'alternate',
+        delay: anime.stagger(200)
+    });
+</script>
