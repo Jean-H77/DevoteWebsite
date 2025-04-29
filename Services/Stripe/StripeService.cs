@@ -18,10 +18,10 @@ namespace DevoteWebsite.Services.Stripe
         {
             var options = new SessionCreateOptions
             {
-                SuccessUrl = "https://google.com", // Replace with your actual success URL
-                CancelUrl = "https://google.net",   // Replace with your actual cancel URL
+                SuccessUrl = "https://google.com", 
+                CancelUrl = "https://google.net", 
                 Mode = "payment",
-                CustomerEmail = "temp@temp.com",     // Consider making this configurable
+                CustomerEmail = "temp@temp.com",     
                 LineItems = new List<SessionLineItemOptions>()
             };
 
@@ -30,14 +30,14 @@ namespace DevoteWebsite.Services.Stripe
                 if (item == null || string.IsNullOrWhiteSpace(item.Name)
                     || item.TotalPrice <= 0 || item.Quantity <= 0)
                 {
-                    continue; // or throw an exception for invalid items
+                    continue; 
                 }
 
                 var sessionListItem = new SessionLineItemOptions
                 {
                     PriceData = new SessionLineItemPriceDataOptions
                     {
-                        UnitAmountDecimal = (decimal)item.TotalPrice * 100, // Convert to cents
+                        UnitAmountDecimal = (decimal)item.TotalPrice * 100,
                         Currency = "usd",
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
