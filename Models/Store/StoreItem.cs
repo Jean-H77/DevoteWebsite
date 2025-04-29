@@ -12,16 +12,16 @@ namespace DevoteWebsite.Models.Store
         public int Id { get; set; }
 
         [Column("name")]
-        public string? Name { get; set; }
+        public required string Name { get; set; }
 
         [Column("price")]
         public decimal Price { get; set; }
 
         [Column("thumbnail_url")]
-        public string? ThumbnailUrl { get; set; }
+        public required string ThumbnailUrl { get; set; }
 
         [Column("description")]
-        public string? Description { get; set; }
+        public required string Description { get; set; }
 
         [Column("uid")]
         public Guid Uid { get; set; }

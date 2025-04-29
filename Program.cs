@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DevoteWebsite.Data;
+using Stripe;
+using DevoteWebsite.Services.Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,8 @@ builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
+
+builder.Services.AddScoped<StripeService>();
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -49,6 +53,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession();
 
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 app.UseRouting();
 
 app.UseAuthorization();

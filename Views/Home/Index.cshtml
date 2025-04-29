@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Devote - Custom RSPS";
+    ViewData["Title"] = "Name Goes Here";
 }
 
 <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
@@ -9,7 +9,6 @@
     <div class="row py-5">
         <div class="col-12 text-center">
             <h1 class="logo display-1 fw-bold" id="logo">@ViewData["Title"]</h1>
-            <!-- Flexbox for buttons -->
             <div class="d-flex justify-content-center gap-3 mt-4 btn-group-custom">
                 <a class="btn btn-lg btn-dark px-5 py-3 shadow-lg" asp-area="" asp-controller="Play" asp-action="Index">Play</a>
                 <a href="https://discord.gg/6HapCt9zaw" class="btn btn-lg btn-outline-dark px-5 py-3 shadow-lg">Discord</a>
@@ -58,7 +57,7 @@
                 <h5 class="text-center text-dark fw-bold">Recent Media</h5>
                 <div class="embed-responsive embed-responsive-16by9 w-100" style="position: relative; overflow: hidden;">
                     <iframe class="w-100 border-0 rounded-lg" style="aspect-ratio: 16/9;"
-                            src="https://www.youtube.com/embed/qfQTxs-Ibeo?si=0KycSPzdksLBJz8z"
+                            src="https://www.youtube.com/embed/jNQXAC9IVRw?si=2SjB-9Rc3hB_TZ0W"
                             title="YouTube video player" frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
@@ -77,10 +76,11 @@
     </div>
 </div>
 
+
 <script>
     anime({
         targets: '#logo',
-        color: ['#333333', '#191970'], // Dark gray to deep blue
+        color: ['#333333', '#191970'], 
         duration: 1500,
         easing: 'easeInOutSine',
         loop: true,

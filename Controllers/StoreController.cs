@@ -1,4 +1,5 @@
 ﻿using DevoteWebsite.Data;
+using DevoteWebsite.Services.Stripe;
 using DevoteWebsite.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,15 +8,16 @@ using Newtonsoft.Json;
 
 namespace DevoteWebsite.Controllers
 {
-    // pk_test_51R0xj8QkznWYVUdaHlNWJDu1BwASKwRU4JkkcGLYB6j7nuNiMbgtJJYpj6kZrJZF6JEicxbg6vKSfuE4JaoyMJC100X7p2nJlQ
-    // sk_test_51R0xj8QkznWYVUdaCYG86XBCPKMOOk8GvpQeu4IqOXAoiDMSQ7DCBvSKq4taFvUEKeXMS04LzKrmcHmxRvwlKxci00LBK4X7oc
+
     public class StoreController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly StripeService _stripeService;
 
-        public StoreController(ApplicationDbContext db)
+        public StoreController(ApplicationDbContext db, StripeService stripeService)
         {
             _db = db;
+            _stripeService = stripeService;
         }
 
         public async Task<IActionResult> Index()
@@ -27,14 +29,13 @@ namespace DevoteWebsite.Controllers
                 .Include(item => item.StoreItemSaleInfo)
                 .ToListAsync();
 
-            HttpContext.Session.SetString("cart_total", "33.3");
-
             var storeItemsViewModel = storeItems.Select(item => new StoreItemViewModel
             {
                 Name = item.Name,
                 Price = item.Price,
                 Uid = item.Uid,
                 Description = item.Description,
+                Thumbnail = item.ThumbnailUrl,
                 SalePercentage = item.StoreItemSaleInfo != null ? item.StoreItemSaleInfo.PercentageOff : 0,
                 DiscountedPrice = item.StoreItemSaleInfo != null ? GetDiscountedPrice(item.Price, item.StoreItemSaleInfo.PercentageOff) : -1
             });
@@ -49,6 +50,7 @@ namespace DevoteWebsite.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        //@todo I need to refactor this
         public async Task<IActionResult> AddToCart([FromBody] StoreCartItemViewModel model)
         {
             if (!ModelState.IsValid)
@@ -109,7 +111,7 @@ namespace DevoteWebsite.Controllers
             return PartialView("_cart", cartItems.Values.ToList());
         }
 
-        public bool HasCartSessionOrCreate()
+        private bool HasCartSessionOrCreate()
         {
             bool hasCartSession = HttpContext.Session.GetString("cart") != null;
             if(!hasCartSession)
@@ -122,9 +124,59 @@ namespace DevoteWebsite.Controllers
             return true;
         }
 
-        private void setCartTotalSessionValue()
+        private async Task<StoreCartItemViewModel> ValidateAndPrepareCartItem(StoreCartItemViewModel model)
         {
+            var dbItem = await _db.StoreItems
+                .Include(item => item.StoreItemSaleInfo)
+                .SingleOrDefaultAsync(m => m.Uid.ToString() == model.Uid);
 
+            if (dbItem == null || dbItem.Name == null)
+            {
+                return null;
+            }
+
+            return new StoreCartItemViewModel
+            {
+                Uid = model.Uid,
+                Name = dbItem.Name,
+                Price = dbItem.StoreItemSaleInfo != null
+                    ? GetDiscountedPrice(dbItem.Price, dbItem.StoreItemSaleInfo.PercentageOff)
+                    : dbItem.Price,
+                Quantity = model.Quantity
+            };
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> HandleCheckout()
+        {
+            var cartString = HttpContext.Session.GetString("cart");
+            var cartItems = JsonConvert.DeserializeObject<Dictionary<string, StoreCartItemViewModel>>(cartString) ?? new Dictionary<string, StoreCartItemViewModel>();
+
+            var stripeItems = new List<StripeItem>();
+            foreach (var c in cartItems)
+            {
+                var validCartItemOrNull = await ValidateAndPrepareCartItem(c.Value);
+
+                if (validCartItemOrNull == null)
+                {
+                    continue;
+                }
+
+                var stripeItem = new StripeItem()
+                {
+                    Name = validCartItemOrNull.Name,
+                    Quantity = 3,
+                    TotalPrice = (decimal)validCartItemOrNull.Price
+                };
+
+                stripeItems.Add(stripeItem);
+            }
+
+
+            var checkoutUrl = _stripeService.GetCheckoutUrl(stripeItems);
+
+            return Redirect(checkoutUrl);
         }
     }
 }
